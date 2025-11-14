@@ -23,10 +23,25 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+# Import volunteer views from events app
+from events.views import (
+    list_volunteers, 
+    create_volunteer, 
+    delete_volunteer, 
+    volunteer_login, 
+    volunteer_verify_ticket
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('events.urls')),
     # JWT Authentication
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Volunteer Management
+    path('api/volunteers/', list_volunteers, name='list_volunteers'),
+    path('api/volunteers/create/', create_volunteer, name='create_volunteer'),
+    path('api/volunteers/<int:volunteer_id>/delete/', delete_volunteer, name='delete_volunteer'),
+    path('api/volunteer/login/', volunteer_login, name='volunteer_login'),
+    path('api/volunteer/verify-ticket/', volunteer_verify_ticket, name='volunteer_verify_ticket'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

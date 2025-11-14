@@ -103,3 +103,13 @@ class Ticket(models.Model):
         
     def __str__(self):
         return f"Ticket {self.ticket_number} - {self.booking.customer_name} - OTP: {self.otp_code}"
+    
+# Add this model to your models.py
+class Volunteer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='volunteer_profile')
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.user.username})"

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Event, Booking, Ticket
+from .models import Event, Booking, Ticket, Volunteer
 from django.core.mail import send_mail
 from rest_framework import generics, filters, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -7,7 +7,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from .serializers import (EventSerializer, EventListSerializer, BookingSerializer, BookingWithTicketsSerializer, TicketSerializer)
-
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from django.utils import timezone
 import random 
 import datetime 
 
@@ -119,47 +121,120 @@ def complete_payment(request, booking_id):
     response_serializer = BookingWithTicketsSerializer(booking)
     return Response(response_serializer.data, status=status.HTTP_200_OK)
 
+# ===== VOLUNTEER MANAGEMENT VIEWS =====
+
+# Admin: Create volunteer
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def verify_ticket(request):
-    """
-    Verify a ticket using OTP code
-    URL: /api/verify-ticket/
-    """
-    otp_code = request.data.get('otp_code')
+def create_volunteer(request):
+    # if not request.user.is_staff:
+    #     return Response({'error': 'Admin access required'}, status=403)
     
-    if not otp_code:
-        return Response({'error': 'OTP code is required'}, status=status.HTTP_400_BAD_REQUEST)
+    name = request.data.get('name')
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    if not all([name, username, password]):
+        return Response({'error': 'All fields required'}, status=400)
+    
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=400)
+    
+    user = User.objects.create_user(username=username, password=password)
+    volunteer = Volunteer.objects.create(user=user, name=name)
+    
+    return Response({
+        'message': 'Volunteer created successfully',
+        'volunteer': {'id': volunteer.id, 'name': name, 'username': username}
+    })
+
+# Admin: List volunteers
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_volunteers(request):
+    # if not request.user.is_staff:
+    #     return Response({'error': 'Admin access required'}, status=403)
+    
+    volunteers = Volunteer.objects.select_related('user').filter(is_active=True)
+    data = [{'id': v.id, 'name': v.name, 'username': v.user.username, 'created_at': v.created_at} 
+            for v in volunteers]
+    return Response(data)
+
+# Admin: Delete volunteer
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_volunteer(request, volunteer_id):
+    # if not request.user.is_staff:
+    #     return Response({'error': 'Admin access required'}, status=403)
     
     try:
-        # Find ticket with this OTP
-        ticket = Ticket.objects.get(otp_code=otp_code)
+        volunteer = Volunteer.objects.get(id=volunteer_id)
+        volunteer.user.delete()  # This will cascade delete the volunteer
+        return Response({'message': 'Volunteer deleted successfully'})
+    except Volunteer.DoesNotExist:
+        return Response({'error': 'Volunteer not found'}, status=404)
+
+# Volunteer: Login
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def volunteer_login(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    user = authenticate(username=username, password=password)
+    
+    if user and hasattr(user, 'volunteer_profile'):
+        return Response({
+            'success': True,
+            'name': user.volunteer_profile.name,
+            'username': user.username
+        })
+    
+    return Response({'error': 'Invalid credentials or not a volunteer'}, status=401)
+
+# Volunteer: Verify ticket
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def volunteer_verify_ticket(request):
+    """
+    Verify a ticket using volunteer credentials and OTP code
+    """
+    username = request.data.get('username')
+    password = request.data.get('password')
+    otp_code = request.data.get('otp_code')
+    
+    # Authenticate volunteer
+    user = authenticate(username=username, password=password)
+    if not user or not hasattr(user, 'volunteer_profile'):
+        return Response({'error': 'Invalid volunteer credentials'}, status=401)
+    
+    # Find ticket
+    try:
+        ticket = Ticket.objects.select_related('booking', 'booking__event').get(otp_code=otp_code)
         
-        # Check if already verified
         if ticket.is_verified:
             return Response({
                 'error': 'Ticket already verified',
-                'ticket_info': {
-                    'customer': ticket.booking.customer_name,
-                    'event': ticket.booking.event.title,
-                    'verified_at': ticket.verified_at
-                }
-            }, status=status.HTTP_400_BAD_REQUEST)
+                'verified_at': ticket.verified_at,
+                'verified_by': ticket.verified_by.username if ticket.verified_by else None
+            }, status=400)
         
-        # Mark as verified
+        # Verify ticket
         ticket.is_verified = True
+        ticket.verified_at = timezone.now()
+        ticket.verified_by = user
         ticket.save()
         
         return Response({
-            'message': 'Ticket verified successfully!',
-            'ticket_info': {
-                'customer': ticket.booking.customer_name,
+            'success': True,
+            'message': 'Ticket verified successfully',
+            'ticket': {
+                'otp_code': ticket.otp_code,
                 'event': ticket.booking.event.title,
+                'customer': ticket.booking.customer_name,
                 'ticket_number': ticket.ticket_number
             }
-        }, status=status.HTTP_200_OK)
+        })
         
     except Ticket.DoesNotExist:
-        return Response({
-            'error': 'Invalid OTP code'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Invalid OTP code'}, status=404)
