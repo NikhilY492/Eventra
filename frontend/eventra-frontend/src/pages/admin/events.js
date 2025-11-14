@@ -143,6 +143,18 @@ export default function EventManagement() {
       alert("Server error while creating event. Check console for details.");
     }
   };
+  //add the handlechange int here
+  const handleChangeInt = (e) => {
+  const { name, value } = e.target;
+
+  // Allow empty input or digits only
+  if (/^\d*$/.test(value)) {
+    setEventForm({
+      ...eventForm,
+      [name]: value === "" ? "" : parseInt(value),
+    });
+  }
+};
 
   // Helper to map Django type to CSS class (rest of function remains the same)
   const getEventClass = (type) => {
@@ -294,7 +306,7 @@ export default function EventManagement() {
                     <option value="movie">Movie Screening</option>
                     <option value="workshop">Workshop</option>
                     <option value="seminar">Seminar</option>
-                    <option value="conference">Conference</option>
+                    <option value="events">Conference</option>
                     <option value="other">Other</option>
                   </select>
                   
@@ -311,16 +323,32 @@ export default function EventManagement() {
                   <div className="flex gap-3">
                       <label className="flex-1">
                           Date:
-                          <input name="event_date" type="date" value={eventForm.event_date} onChange={handleChange} className="w-full border p-2 rounded-md text-sm mt-1" />
+                          <input name="event_date" type="date" min={new Date().toISOString().split("T")[0]} value={eventForm.event_date} onChange={handleChange} className="w-full border p-2 rounded-md text-sm mt-1" />
                       </label>
                       <label className="flex-1">
                           Time:
-                          <input name="event_time" type="time" value={eventForm.event_time.slice(0, 5)} onChange={handleChange} className="w-full border p-2 rounded-md text-sm mt-1" />
+                          <input name="event_time" type="time" min={new Date().toISOString().split("T")[0]} value={eventForm.event_time.slice(0, 5)} onChange={handleChange} className="w-full border p-2 rounded-md text-sm mt-1" />
                       </label>
                   </div>
                   
-                  <input name="ticket_price" type="number" step="0.01" onChange={handleChange} value={eventForm.ticket_price} placeholder="Registration Fee (₹) - e.g., 50.00" className="w-full border p-2 rounded-md text-sm" />
-                  <input name="total_seats" type="number" onChange={handleChange} value={eventForm.total_seats} placeholder="Total Capacity (Required)" className="w-full border p-2 rounded-md text-sm" />
+                  <input
+  name="ticket_price"
+  type="text"
+  onChange={handleChangeInt}
+  value={eventForm.ticket_price}
+  placeholder="Registration Fee (₹) - e.g., 50"
+  className="w-full border p-2 rounded-md text-sm"
+/>
+
+<input
+  name="total_seats"
+  type="text"
+  onChange={handleChangeInt}
+  value={eventForm.total_seats}
+  placeholder="Total Capacity (Required)"
+  className="w-full border p-2 rounded-md text-sm"
+/>
+
                 </>
               )}
             </div>

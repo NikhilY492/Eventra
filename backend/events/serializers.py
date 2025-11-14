@@ -10,8 +10,8 @@ class EventListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = [
-            'id', 'title', 'event_type', 'organizer', 'venue', 'ticket_price',
-            'available_seats', 'event_date', 'event_time', 'location', 'is_active'
+            'id', 'title', 'event_type', 'organizer', 'venue', 'ticket_price','total_seats',
+            'available_seats', 'event_date', 'event_time', 'location', 'is_active','created_at'
         ]
 
 class BookingSerializer(serializers.ModelSerializer):
