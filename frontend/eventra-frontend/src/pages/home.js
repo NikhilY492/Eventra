@@ -78,6 +78,9 @@ const HomePage = () => {
             // If no mapping exists, show all events
             setActiveFilter('All Events');
         }
+    } else {
+        // No filter parameter means show all events
+        setActiveFilter('All Events');
     }
   }, [router.isReady, router.query.filter]);
 
@@ -87,19 +90,6 @@ const HomePage = () => {
         {/* Search Bar */}
         <div className="mb-8">
           <SearchBar />
-        </div>
-
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          {filters.map((filter) => (
-            <FilterButton
-              key={filter.label}
-              icon={filter.icon}
-              label={filter.label}
-              isActive={activeFilter === filter.label}
-              onClick={() => setActiveFilter(filter.label)}
-            />
-          ))}
         </div>
         
         {/* Event Grid */}

@@ -16,7 +16,7 @@ const Navbar = () => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex space-x-8">
-            <Link href="/home?filter=other">
+            <Link href="/home">
               <span className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer">
                 Events
               </span>
@@ -31,9 +31,9 @@ const Navbar = () => {
                 Screenings
               </span>
             </Link>
-            <Link href="/admin/login">
+            <Link href="/home?filter=other">
               <span className="text-gray-700 hover:text-blue-600 font-medium cursor-pointer">
-                Admin
+                Culturals
               </span>
             </Link>
           </div>
