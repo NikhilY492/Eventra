@@ -29,6 +29,7 @@ class Event(models.Model):
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    poster = models.ImageField(upload_to='posters/', blank=True, null=True)
 
     def __str__(self):
         return self.title

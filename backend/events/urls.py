@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import EventListCreateView, EventDetailView, create_booking, verify_ticket, complete_payment # Added complete_payment
-
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     # Events
     path('events/', EventListCreateView.as_view(), name='event-list-create'),
@@ -14,4 +15,4 @@ urlpatterns = [
     
     # Verification  
     path('verify-ticket/', verify_ticket, name='verify-ticket'),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
