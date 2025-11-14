@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Event, Booking, Ticket
 
 class EventSerializer(serializers.ModelSerializer):
+    poster = serializers.ImageField(required=False)
     class Meta:
         model = Event
         fields = '__all__'
@@ -11,7 +12,8 @@ class EventListSerializer(serializers.ModelSerializer):
         model = Event
         fields = [
             'id', 'title', 'event_type', 'organizer', 'venue', 'ticket_price','total_seats',
-            'available_seats', 'event_date', 'event_time', 'location', 'is_active','created_at'
+            'available_seats', 'event_date', 'event_time', 'location', 'is_active','created_at',
+            'poster'
         ]
 
 class BookingSerializer(serializers.ModelSerializer):

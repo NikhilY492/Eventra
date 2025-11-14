@@ -107,42 +107,46 @@ export default function EventManagement() {
   };
 
   const handleCreateEvent = async () => {
-    
-    if (!eventForm.title || !eventForm.venue || !eventForm.event_date || eventForm.total_seats <= 0) {
-        alert("Please fill out Title, Venue, Date, and Capacity correctly.");
-        return;
+  const formData = new FormData();
+
+  Object.entries(eventForm).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      formData.append(key, value);
+    }
+  });
+
+  // Auto-set available seats
+  formData.append("available_seats", eventForm.total_seats);
+
+  const token = localStorage.getItem("authToken");
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/events/`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        // ❌ DO NOT SET Content-Type — browser sets multipart boundary automatically
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log("ERROR:", errorData);
+      alert("Failed to create event");
+      return;
     }
 
-    const payload = {
-      ...eventForm,
-      available_seats: eventForm.total_seats,
-      ticket_price: parseFloat(eventForm.ticket_price).toFixed(2),
-    };
-    
-    // 🚨 Using AUTH HEADERS for protected POST request
-    const headers = getAuthHeaders();
+    alert("Event created successfully!");
+    setIsModalOpen(false);
+    fetchEvents();
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/events/`, {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(payload),
-      });
+  } catch (error) {
+    console.error("Upload error:", error);
+    alert("Server error while uploading poster");
+  }
+};
 
-      if (response.ok) {
-        alert("Event created successfully!");
-        setIsModalOpen(false);
-        fetchEvents();
-      } else {
-        const errorData = await response.json();
-        console.error("Failed to create event:", errorData);
-        alert(`Failed to create event. Details: ${errorData.detail || JSON.stringify(errorData)}. Did you log in?`);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Server error while creating event. Check console for details.");
-    }
-  };
   //add the handlechange int here
   const handleChangeInt = (e) => {
   const { name, value } = e.target;
@@ -311,9 +315,17 @@ export default function EventManagement() {
                   </select>
                   
                   <input name="organizer" onChange={handleChange} value={eventForm.organizer} placeholder="Organizer Name (Required)" className="w-full border p-2 rounded-md text-sm" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setEventForm({ ...eventForm, poster: e.target.files[0] })}
+                    className="w-full border p-2 rounded-md text-sm"
+                  />
+
                   <input name="location" onChange={handleChange} value={eventForm.location} placeholder="Location (e.g., Block A, City Name)" className="w-full border p-2 rounded-md text-sm" />
                   <textarea name="description" onChange={handleChange} value={eventForm.description} placeholder="Description" className="w-full border p-2 rounded-md text-sm" />
                 </>
+                
               )}
 
               {tab === "logistics" && (
