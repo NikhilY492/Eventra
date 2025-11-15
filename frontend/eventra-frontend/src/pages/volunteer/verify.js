@@ -91,7 +91,7 @@ export default function VerifyTicket() {
     <>
       {/* Back Button */}
       <div className="absolute top-6 left-6 text-sm text-gray-600">
-        <Link href="/" className="flex items-center gap-1 hover:text-blue-600">
+        <Link href="/home" className="flex items-center gap-1 hover:text-blue-600">
           ← Back to Home
         </Link>
       </div>

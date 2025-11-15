@@ -66,7 +66,7 @@ export default function AdminLogin() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       {/* Back Button */}
       <div className="absolute top-6 left-6 text-sm text-gray-600">
-        <Link href="/" className="flex items-center gap-1 hover:text-blue-600">
+        <Link href="/home" className="flex items-center gap-1 hover:text-blue-600">
           ← Back to Home
         </Link>
       </div>
