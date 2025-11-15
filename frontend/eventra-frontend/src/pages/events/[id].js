@@ -65,7 +65,7 @@ export default function EventDetails() {
     <div className="min-h-screen bg-gray-50 px-8 py-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <Link href="/" className="text-sm text-gray-600 hover:text-blue-600">
+        <Link href="/home" className="text-sm text-gray-600 hover:text-blue-600">
           ← Back to Events
         </Link>
         <h1 className="font-semibold text-lg text-indigo-600">Eventra</h1>
@@ -73,9 +73,28 @@ export default function EventDetails() {
 
       <div className="flex flex-col md:flex-row gap-8">
         {/* Left: Image */}
-        <div className="flex-1 bg-gray-100 rounded-2xl h-[400px] flex justify-center items-center">
-          <p className="text-gray-400">Image Placeholder</p>
+        <div className="flex-1 bg-gray-100 rounded-2xl h-[400px] flex justify-center items-center overflow-hidden">
+          {/* choose the best image URL from the event object */}
+          {(() => {
+            const src = event?.image || event?.image_url || event?.poster || event?.cover || event?.banner || event?.thumbnail;
+            if (src) {
+              return (
+                <img
+                  src={src}
+                  alt={event.title || 'Event image'}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // fallback in case the image fails to load
+                    e.currentTarget.onerror = null;
+                  }}
+                />
+              );
+            }
+            // fallback placeholder if no image provided
+            return <p className="text-gray-400">Image Placeholder</p>;
+          })()}
         </div>
+
 
         {/* Right: Details */}
         <div className="flex-[1.2] space-y-6">
@@ -117,9 +136,6 @@ export default function EventDetails() {
                   <Calendar size={16} /> {event.event_time.slice(0, 5)}
                 </button>
               </Link>
-              <button className="border px-4 py-2 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>
-                9:30 PM (Not Available)
-              </button>
             </div>
           </div>
 

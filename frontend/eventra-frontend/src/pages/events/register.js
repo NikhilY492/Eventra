@@ -286,7 +286,7 @@ export default function EventRegistration() {
                     {eventDetails.event_time.slice(0, 5)}
                   </option>
                   {/* Hardcoded second option for demonstration, remove if not needed */}
-                  {eventDetails.event_type === 'movie' && <option>9:30 PM</option>}
+                  {eventDetails.event_type === 'movie'}
                 </select>
               </div>
               <div>

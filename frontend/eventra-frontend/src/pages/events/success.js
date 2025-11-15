@@ -28,7 +28,7 @@ export default function SuccessPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-lg text-red-500">Error: Booking details not found.</p>
-          <Link href="/"><button className="mt-4 text-sm text-gray-700 underline">← Back to Events</button></Link>
+          <Link href="/home"><button className="mt-4 text-sm text-gray-700 underline">← Back to Events</button></Link>
         </div>
       </div>
     );
@@ -107,7 +107,7 @@ export default function SuccessPage() {
         </div>
 
         <div className="text-center mt-8">
-          <Link href="/">
+          <Link href="/home">
             <button className="text-sm text-gray-700 hover:text-gray-900 underline">← Back to Events</button>
           </Link>
         </div>
