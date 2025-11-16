@@ -17,7 +17,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-from events.views import event_bookings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -47,7 +46,7 @@ urlpatterns = [
     path('api/volunteers/<int:volunteer_id>/delete/', delete_volunteer, name='delete_volunteer'),
     path('api/volunteer/login/', volunteer_login, name='volunteer_login'),
     path('api/volunteer/verify-ticket/', volunteer_verify_ticket, name='volunteer_verify_ticket'),
-    path('api/events/<int:event_id>/bookings/', event_bookings, name='event-bookings'),
+    
     path('api/admin/profile/', admin_profile, name='admin_profile'),
     path('api/admin/verify-ticket/', admin_verify_ticket, name='admin_verify_ticket'),
 

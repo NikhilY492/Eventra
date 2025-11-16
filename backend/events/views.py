@@ -88,13 +88,7 @@ def complete_payment(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
 
     if booking.payment_status == 'completed':
-    # Return existing ticket data instead of error
-        serializer = BookingWithTicketsSerializer(booking)
-        return Response({
-        "message": "Payment already completed.",
-        **serializer.data
-    }, status=status.HTTP_200_OK)
-
+        return Response({'error': 'Payment already completed.'}, status=status.HTTP_400_BAD_REQUEST)
 
     # 1. Update Payment Status & ID (using current time/booking ID for simulated ID)
     booking.payment_status = 'completed'
@@ -305,13 +299,6 @@ def admin_profile(request):
             })
         except Exception as e:
             return Response({'error': str(e)}, status=500)
-#For fetching the bookings of a particular event
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def event_bookings(request, event_id):
-    bookings = Booking.objects.filter(event__id=event_id)
-    serializer = BookingWithTicketsSerializer(bookings, many=True)
-    return Response(serializer.data)
         
 # Add this new view to views.py
 @api_view(['POST'])
